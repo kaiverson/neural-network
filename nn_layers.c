@@ -14,7 +14,7 @@ LayerDense *nn_layer_dense_init(int size_input, int size_output) {
 
     layer->size_input = size_input + 1;
     layer->size_output = size_output;
-    layer->parameters = matrix_init(size_output, size_input + 1);
+    layer->parameters = matrix_init_identity(size_output, size_input + 1);
     if (layer->parameters == NULL) {
         printf("LAYER (DENSE) COULD NOT BE CREATED\n");
         free(layer);
@@ -35,9 +35,9 @@ void nn_layer_dense_print(LayerDense *layer) {
 }
 
 
-Vector *nn_layer_dense_forward(LayerDense *layer, Vector *x) {
-    Vector *result = matrix_times_vector(layer->parameters, x);
-    return result;
+Vector *nn_layer_dense_forward(LayerDense *layer, Vector *x_in, Vector *x_out) {
+    x_out = matrix_times_vector(layer->parameters, x_in, x_out);
+    return x_out;
 }
 
 

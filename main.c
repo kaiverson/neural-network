@@ -6,14 +6,16 @@
 /* BUILD UR NEURAL NETWORK HERE! */
 typedef struct {
     LayerDense *dense1;
+    Vector *intermediate1;
     LayerDense *dense2;
+    Vector *intermediate2;
 } NeuralNetwork;
 
 NeuralNetwork *nn_init() {
     NeuralNetwork *nn = malloc(sizeof(NeuralNetwork));
     
-    // Initialize layers
     nn->dense1 = nn_layer_dense_init(3072, 512);  // Input size: 32x32x3 = 3072
+    //nn->intermediate1 = vector_init()
     nn->dense2 = nn_layer_dense_init(512, 10);     // Output size: 10 classes
     
     return nn;

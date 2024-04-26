@@ -7,35 +7,68 @@
 
 
 /* RANDOM */
-float randn() {
-    float u1 = rand() / (float)RAND_MAX;
-    float u2 = rand() / (float)RAND_MAX;
-    return sqrtf(-2 * logf(u1)) * cosf(2 * 3.14159 * u2);
+double randn() {
+    double u1 = rand() / (double)RAND_MAX;
+    double u2 = rand() / (double)RAND_MAX;
+    double randn = sqrtf(-2 * logf(u1)) * cosf(2 * 3.14159 * u2);
+
+    if (randn > 1000 | randn < -1000) {
+        printf("VERY LARGE RANDOM NUMBER!\n\tu1: %f\n\tu2: %f\n\t randn: %f\n");
+    }
+
+    return randn;
 }
 /* END RANDOM */
 
 
 
 /* VECTOR FUNCTIONS */
-Vector *vector_init(unsigned int rows, float *values) {
+Vector *vector_init(unsigned int rows, double *values) {
     Vector *vector;
-    vector = malloc((sizeof (Vector)));
+    vector = vector_init_empty(rows);
     if (vector == NULL) {
-        return NULL;
-    }
-
-    vector->values = malloc((rows + 1) * sizeof(float));
-    if (vector->values == NULL) {
+        printf("vector_init error\n");
         return NULL;
     }
 
     for (unsigned int row = 0; row < rows; row++) {
         vector->values[row] = values[row];
     }
-    vector->values[rows] = 1.0;
 
-    vector->rows = rows + 1;
+    return vector;
+}
 
+
+Vector *vector_init_randn(unsigned int rows) {
+    Vector *vector;
+    vector = vector_init_empty(rows);
+    if (vector == NULL) {
+        printf("vector_init_randn error\n");
+        return NULL;
+    }
+
+    for (unsigned int row = 0; row < rows; row++) {
+        vector->values[row] = randn();
+    }
+
+    return vector;
+}
+
+
+Vector *vector_init_empty(unsigned int rows) {
+    Vector *vector;
+    vector = malloc((sizeof (Vector)));
+    if (vector == NULL) {
+        return NULL;
+    }
+
+
+    vector->values = malloc((rows) * sizeof(double));
+    if (vector->values == NULL) {
+        return NULL;
+    }
+
+    vector->rows = rows;
 
     return vector;
 }
@@ -57,10 +90,20 @@ void vector_print(Vector *vector) {
 }
 
 
-Vector *vector_append(Vector *vector, float value) {
-    vector->values[vector->rows] = value;
-    vector->rows++;
-    return vector;
+bool vector_equal(Vector *a, Vector *b) {
+    if (a->rows != b->rows) {
+        return false;
+    }
+
+    for (unsigned int row = 0; row < a->rows; row++) {
+
+        if (a->values[row] != b->values[row]) {
+            return false;
+        }
+
+    }
+
+    return true;
 }
 /* END VECTOR FUNCTIONS */
 
@@ -68,7 +111,68 @@ Vector *vector_append(Vector *vector, float value) {
 
 
 /* MATRIX FUNCTIONS */
-Matrix *matrix_init(unsigned int rows, unsigned int cols) {
+Matrix *matrix_init(unsigned int rows, unsigned int cols, double **values);
+
+
+Matrix *matrix_init_randn(unsigned int rows, unsigned int cols) {
+    Matrix *matrix;
+    matrix = matrix_init_empty(rows, cols);
+    if (matrix == NULL) {
+        printf("matrix_init failed\n");
+        return NULL;
+    }
+
+    unsigned int row, col;
+    for (row = 0; row < rows; row++) {
+
+        for (col = 0; col < cols; col++) {
+
+            matrix->values[row][col] = randn();
+
+        }
+
+    }
+
+    return matrix;
+}
+
+
+Matrix *matrix_init_identity(unsigned int rows, unsigned int cols) {
+
+    if (rows != cols) {
+        printf("Identity rows (%d) != cols (%d)\n", rows, cols);
+        return NULL;
+    }
+
+
+    Matrix *matrix;
+    matrix = matrix_init_empty(rows, cols);
+    if (matrix == NULL) {
+        printf("matrix_init failed\n");
+        return NULL;
+    }
+
+    unsigned int row, col;
+    for (row = 0; row < rows; row++) {
+
+        for (col = 0; col < cols; col++) {
+
+            if (row == col) {
+                matrix->values[row][col] = 1.0;
+            } else {
+                matrix->values[row][col] = 0.0;
+            }
+
+        }
+
+    }
+
+    return matrix;
+
+}
+
+
+Matrix *matrix_init_empty(unsigned int rows, unsigned int cols) {
     Matrix *matrix;
     matrix = malloc(sizeof (Matrix));
     if (matrix == NULL) {
@@ -78,7 +182,7 @@ Matrix *matrix_init(unsigned int rows, unsigned int cols) {
     matrix->rows = rows;
     matrix->cols = cols;
 
-    matrix->values = malloc(rows * sizeof(float *));
+    matrix->values = malloc(rows * sizeof(double *));
     if (matrix == NULL) {
         free(matrix);
         return NULL;
@@ -87,7 +191,8 @@ Matrix *matrix_init(unsigned int rows, unsigned int cols) {
     unsigned int row;
     unsigned int col;
     for (row = 0; row < rows; row++) {
-        matrix->values[row] = malloc(cols * sizeof(float));
+
+        matrix->values[row] = malloc(cols * sizeof(double));
         if (matrix->values[row] == NULL) {
             for (int i = 0; i < row; i++) {
                 free(matrix->values[i]);
@@ -96,13 +201,11 @@ Matrix *matrix_init(unsigned int rows, unsigned int cols) {
             return NULL;
         }
 
-        for (col = 0; col < cols; col++) {
-            matrix->values[row][col] = randn() * 0.01;
-        }
     }
 
     return matrix;
 }
+
 
 
 void matrix_free(Matrix *matrix) {
@@ -115,7 +218,7 @@ void matrix_free(Matrix *matrix) {
 }
 
 
-void matrix_print(Matrix *matrix) {
+void matrix_print(const Matrix *matrix) {
     unsigned int row;
     unsigned int col;
     char *padding = "";
@@ -153,25 +256,40 @@ void matrix_print(Matrix *matrix) {
 }
 
 
-Vector *matrix_times_vector(Matrix *matrix, Vector *vector) {
-    if (matrix->cols != vector->rows) {
-        printf("Error: matrix cols (%d) != vector rows (%d)\n", matrix->cols, vector->rows);
+Vector *matrix_times_vector(const Matrix *matrix, const Vector *input, Vector *output) {
+    if (matrix->cols != input->rows) {
+        printf("Error: matrix cols (%d) != vector input rows (%d)\n", matrix->cols, input->rows);
         return NULL;
     }
 
-    float *vector_out = malloc(matrix->rows * sizeof(float));
+    if (matrix->rows != output->rows) {
+        printf("Error: matrix rows (%d) != vector output rows (%d)\n", matrix->rows, output->rows);
+        return NULL;
+    }
 
     double dot_product;
+    double product;
     unsigned int mat_row;
     unsigned int mat_col;
     for (mat_row = 0; mat_row < matrix->rows; mat_row++) {
+
         dot_product = 0;
         for (mat_col = 0; mat_col < matrix->cols; mat_col++) {
-            dot_product += matrix->values[mat_row][mat_col] * vector->values[mat_col];
+
+            product = matrix->values[mat_row][mat_col] * input->values[mat_col];
+            dot_product += product;
+
+            if (product > 1000 | product < -1000) {
+
+                printf("Very large product: %.5f times %.5f == %.5f\n", matrix->values[mat_row][mat_col], input->values[mat_col]);
+            }
+
         }
-        vector_out[mat_row] = dot_product;
+        
+        output->values[mat_row] = dot_product;
+
     }
 
-    return vector_init(matrix->rows, vector_out);
+    return output;
 }
 /* END MATRIX FUNCTIONS */
