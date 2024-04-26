@@ -10,7 +10,7 @@
 float randn() {
     float u1 = rand() / (float)RAND_MAX;
     float u2 = rand() / (float)RAND_MAX;
-    return sqrtf(-2 * logf(u1)) * cosf(2 * M_PI * u2);
+    return sqrtf(-2 * logf(u1)) * cosf(2 * 3.14159 * u2);
 }
 /* END RANDOM */
 
@@ -24,8 +24,18 @@ Vector *vector_init(unsigned int rows, float *values) {
         return NULL;
     }
 
-    vector->rows = rows;
-    vector->values = values;
+    vector->values = malloc((rows + 1) * sizeof(float));
+    if (vector->values == NULL) {
+        return NULL;
+    }
+
+    for (unsigned int row = 0; row < rows; row++) {
+        vector->values[row] = values[row];
+    }
+    vector->values[rows] = 1.0;
+
+    vector->rows = rows + 1;
+
 
     return vector;
 }
@@ -44,6 +54,13 @@ void vector_print(Vector *vector) {
         printf("%.2f ", vector->values[i]);
     }
     printf("%.2f])\n", vector->values[vector->rows - 1]);
+}
+
+
+Vector *vector_append(Vector *vector, float value) {
+    vector->values[vector->rows] = value;
+    vector->rows++;
+    return vector;
 }
 /* END VECTOR FUNCTIONS */
 
@@ -80,7 +97,7 @@ Matrix *matrix_init(unsigned int rows, unsigned int cols) {
         }
 
         for (col = 0; col < cols; col++) {
-            matrix->values[row][col] = randn();
+            matrix->values[row][col] = randn() * 0.01;
         }
     }
 
@@ -103,20 +120,36 @@ void matrix_print(Matrix *matrix) {
     unsigned int col;
     char *padding = "";
     printf("Matrix([");
-    for (row = 0; row < matrix->rows - 1; row++) {
+
+    const int MAX_PRINT_ROWS = 20;
+    const int MAX_PRINT_COLS = 20;
+    unsigned int rows;
+    unsigned int cols;
+    char *end_chars = "";
+
+    if (matrix->rows > MAX_PRINT_ROWS) {
+        rows = MAX_PRINT_ROWS;
+        end_chars = " ......";
+    }
+
+    if (matrix->cols > MAX_PRINT_ROWS) {
+        cols = MAX_PRINT_COLS;
+    }
+
+    for (row = 0; row < rows - 1; row++) {
         printf("%s[", padding);
         padding = "        ";
-        for (col = 0; col < matrix->cols - 1; col++) {
+        for (col = 0; col < cols - 1; col++) {
             printf("%.2f ", matrix->values[row][col]);
         }
-        printf("%.2f],\n", matrix->values[row][col]);
+        printf("%.2f%s],\n", matrix->values[row][col], end_chars);
     }
 
     printf("%s[", padding);
-    for (col = 0; col < matrix->cols - 1; col++) {
+    for (col = 0; col < cols - 1; col++) {
         printf("%.2f ", matrix->values[row][col]);
     }
-    printf("%.2f]])\n", matrix->values[row][col]);
+    printf("%.2f%s]])\n", matrix->values[row][col], end_chars);
 }
 
 
@@ -128,7 +161,7 @@ Vector *matrix_times_vector(Matrix *matrix, Vector *vector) {
 
     float *vector_out = malloc(matrix->rows * sizeof(float));
 
-    float dot_product;
+    double dot_product;
     unsigned int mat_row;
     unsigned int mat_col;
     for (mat_row = 0; mat_row < matrix->rows; mat_row++) {

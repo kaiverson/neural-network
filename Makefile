@@ -1,17 +1,10 @@
-CC=gcc
-CFLAGS=-Wall -Wextra -std=c11
+all: main test
 
-SRCS=main.c linear_algebra.c nn_layers.c
-OBJS=$(SRCS:.c=.o)
-EXEC=main
+main: main.c nn_layers.c linear_algebra.c
+	gcc main.c nn_layers.c linear_algebra.c -o main
 
-all: $(EXEC)
-
-$(EXEC): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+test: test.c nn_layers.c linear_algebra.c
+	gcc test.c nn_layers.c linear_algebra.c -o test
 
 clean:
-	rm -f $(EXEC) $(OBJS)
+	rm -f main test

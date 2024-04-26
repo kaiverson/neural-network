@@ -1,54 +1,75 @@
 #include "neural_network.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /* BUILD UR NEURAL NETWORK HERE! */
 typedef struct {
-    LayerDense *layer1;
+    LayerDense *dense1;
+    LayerDense *dense2;
+} NeuralNetwork;
 
+NeuralNetwork *nn_init() {
+    NeuralNetwork *nn = malloc(sizeof(NeuralNetwork));
     
-} MyNeuralNetwork;
+    // Initialize layers
+    nn->dense1 = nn_layer_dense_init(3072, 512);  // Input size: 32x32x3 = 3072
+    nn->dense2 = nn_layer_dense_init(512, 10);     // Output size: 10 classes
+    
+    return nn;
+}
+
+void nn_free(NeuralNetwork *nn) {
+    nn_layer_dense_free(nn->dense1);
+    nn_layer_dense_free(nn->dense2);
+    free(nn);
+}
+
+Vector *nn_forward(NeuralNetwork *nn, Vector *x) {
+    // Forward pass through the first dense layer
+    nn_layer_dense_print(nn->dense1);
+    Vector *dense1_output = nn_layer_dense_forward(nn->dense1, x);
+    printf("\n\nDENSE1 OUTPUT\n");
+    vector_print(dense1_output);
+    
+    // Apply ReLU activation function
+    Vector *relu_output = nn_layer_relu(dense1_output);
+    printf("\n\nRELU OUTPUT\n");
+    vector_print(relu_output);
+    
+    // Forward pass through the second dense layer
+    Vector *dense2_output = nn_layer_dense_forward(nn->dense2, relu_output);
+    vector_print(dense2_output);
+    
+    // Apply softmax activation function
+    Vector *softmax_output = nn_layer_softmax(dense2_output);
+    vector_print(softmax_output);
+    
+    // Free intermediate outputs
+    vector_free(dense1_output);
+    vector_free(relu_output);
+    vector_free(dense2_output);
+    
+    return softmax_output;
+}
 
 
 
 
 int main(int argc, char **argv) {
-    float values[] = {randn(), randn(), randn(), randn(), randn()};
-    Vector *x1 = vector_init(5, values);
+    float values[3072];
+    for (int i = 0; i < 3072; i++) {
+        values[i] = randn();
+    }
 
-    printf("softmax of: \n");
-    vector_print(x1);
-    printf("is: \n");
-    
-    LayerDense *layer1 = nn_layer_dense_init(5, 5);
-    LayerDense *layer2 = nn_layer_dense_init(5, 3);
+    Vector *x = vector_init(3072, values);
+    NeuralNetwork *nn = nn_init();
 
 
-    nn_layer_dense_print(layer1);
-    vector_print(x1);
-    printf("\n\n");
+    Vector *y_pred = nn_forward(nn, x);
+    vector_print(y_pred);
 
 
-    Vector *x2 = nn_layer_dense_forward(layer1, x1);
-    x2 = nn_layer_leaky_relu(x2);
-
-
-    nn_layer_dense_print(layer2);
-    vector_print(x2);
-    printf("\n\n");
-
-    Vector *x3 = nn_layer_dense_forward(layer2, x2);
-    x3 = nn_layer_softmax(x3);
-
-    vector_print(x3);
-
-    
-
-    nn_layer_dense_free(layer1);
-    nn_layer_dense_free(layer2);
-    vector_free(x1);
-    vector_free(x2);
-    vector_free(x3);
 
     return 0;
 }

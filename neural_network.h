@@ -11,6 +11,7 @@ typedef struct {
 Vector *vector_init(unsigned int rows, float *values);
 void vector_free(Vector *vector);
 void vector_print(Vector *vector);
+Vector *vector_append(Vector *vector, float value);
 
 
 typedef struct {
