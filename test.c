@@ -6,18 +6,15 @@
 
 int main() {
     printf("Starting test...\n");
-    srand(3);
 
-    Matrix *matrix = matrix_init_randn(400, 500);
+    Matrix *identity = matrix_init_identity(50, 50);
+    Vector *vector_in = vector_init_randn(50);
+    Vector *vector_out = vector_init_empty(50);
 
-    Vector *input = vector_init_randn(500);
-    vector_print(input);
+    vector_out = matrix_times_vector(identity, vector_in, vector_out);
+
+    int passes = vector_equal(vector_in, vector_out);
     
-    Vector *output = vector_init_empty(400);
-
-    output = matrix_times_vector(matrix, input, output);
-
-    bool passes = vector_equal(input, output);
 
     if (passes) {
         printf("PASSES\n");
@@ -25,11 +22,9 @@ int main() {
         printf("FAILS\n");
     }
 
-    vector_print(output);
-
-    matrix_free(matrix);
-    vector_free(input);
-    vector_free(output);
+    matrix_free(identity);
+    vector_free(vector_in);
+    vector_free(vector_out);
 
     return 0;
 }

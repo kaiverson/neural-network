@@ -12,12 +12,13 @@ LayerDense *nn_layer_dense_init(int size_input, int size_output) {
         return NULL;
     }
 
-    layer->size_input = size_input + 1;
+    layer->size_input = size_input;
     layer->size_output = size_output;
-    layer->parameters = matrix_init_identity(size_output, size_input + 1);
+    layer->parameters = matrix_init_randn(size_output, size_input);
     if (layer->parameters == NULL) {
         printf("LAYER (DENSE) COULD NOT BE CREATED\n");
         free(layer);
+        return NULL;
     }
 
     return layer;
@@ -41,7 +42,8 @@ Vector *nn_layer_dense_forward(LayerDense *layer, Vector *x_in, Vector *x_out) {
 }
 
 
-Vector *nn_layer_dense_backwards(LayerDense *layer, Vector *x);
+void *nn_layer_dense_zero_grad(LayerDense *layer);
+
 
 LayerDense *nn_layer_dense_load(char *file);
 void       *nn_layer_dense_save(LayerDense *layer, char *file);
@@ -52,7 +54,7 @@ void       *nn_layer_dense_save(LayerDense *layer, char *file);
 /* ACTIVATION FUNCTIONS */
 Vector *nn_layer_relu(Vector *x) {
     unsigned int i;
-    for (i = 0; i < x->rows - 1; i++) {
+    for (i = 0; i < x->rows; i++) {
         if (x->values[i] < 0) {
             x->values[i] = 0;
         }
@@ -64,10 +66,22 @@ Vector *nn_layer_relu(Vector *x) {
 
 Vector *nn_layer_leaky_relu(Vector *x) {
     unsigned int i;
-    for (i = 0; i < x->rows - 1; i++) {
+    for (i = 0; i < x->rows; i++) {
         if (x->values[i] < 0) {
             x->values[i] *= 0.1;
         }
+    }
+
+    return x;
+}
+
+
+Vector *nn_layer_sigmoid(Vector *x) {
+    unsigned int row;
+    double exponential = 0;
+
+    for (row = 0; row < x->rows; row++) {
+        x->values[row] = 1 / (1 + exp(-x->values[row]));
     }
 
     return x;
@@ -79,13 +93,13 @@ Vector *nn_layer_softmax(Vector *x) {
     double exponential_sum = 0;
     double exponential;
 
-    for (row = 0; row < x->rows - 1; row++) {
+    for (row = 0; row < x->rows; row++) {
         exponential = exp(x->values[row]);
         exponential_sum += exponential;
         x->values[row] = exponential;
     }
 
-    for (row = 0; row < x->rows - 1; row++) {
+    for (row = 0; row < x->rows; row++) {
         x->values[row] /= exponential_sum;
     }
 

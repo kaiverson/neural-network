@@ -8,15 +8,15 @@
 
 /* RANDOM */
 double randn() {
-    double u1 = rand() / (double)RAND_MAX;
-    double u2 = rand() / (double)RAND_MAX;
+    double u1, u2;
+    do {
+        u1 = rand() / (double)RAND_MAX;
+        u2 = rand() / (double)RAND_MAX;
+    } while (u1 == 0 | u2 == 0);
+
     double randn = sqrtf(-2 * logf(u1)) * cosf(2 * 3.14159 * u2);
 
-    if (randn > 1000 | randn < -1000) {
-        printf("VERY LARGE RANDOM NUMBER!\n\tu1: %f\n\tu2: %f\n\t randn: %f\n");
-    }
-
-    return randn;
+    return randn / 10;
 }
 /* END RANDOM */
 
@@ -80,7 +80,7 @@ void vector_free(Vector *vector) {
 }
 
 
-void vector_print(Vector *vector) {
+void vector_print(const Vector *vector) {
     printf("Vector([");
     unsigned int i;
     for (i = 0; i < vector->rows - 1; i++) {
@@ -90,7 +90,7 @@ void vector_print(Vector *vector) {
 }
 
 
-bool vector_equal(Vector *a, Vector *b) {
+bool vector_equal(const Vector *a, const Vector *b) {
     if (a->rows != b->rows) {
         return false;
     }
@@ -172,6 +172,20 @@ Matrix *matrix_init_identity(unsigned int rows, unsigned int cols) {
 }
 
 
+Matrix *matrix_init_zero(unsigned int rows, unsigned int cols) {
+    Matrix *matrix;
+    matrix = matrix_init_empty(rows, cols);
+    if (matrix == NULL) {
+        printf("MATRIX COULD NOT BE CREATED\n");
+        return NULL;
+    }
+
+    matrix = matrix_zero(matrix);
+
+    return matrix;
+}
+
+
 Matrix *matrix_init_empty(unsigned int rows, unsigned int cols) {
     Matrix *matrix;
     matrix = malloc(sizeof (Matrix));
@@ -207,6 +221,26 @@ Matrix *matrix_init_empty(unsigned int rows, unsigned int cols) {
 }
 
 
+Matrix *matrix_zero(Matrix *matrix) {
+    if (matrix == NULL) {
+        printf("MATRIX ZERO RECIEVED NULLPTR\n");
+        return NULL;
+    }
+
+    unsigned int row, col;
+    for (row = 0; row < matrix->rows; row++) {
+
+        for (col = 0; col < matrix->cols; col++) {
+
+            matrix->values[row][col] = 0;
+
+        }
+
+    }
+
+    return matrix;
+}
+
 
 void matrix_free(Matrix *matrix) {
     unsigned int row;
@@ -226,8 +260,8 @@ void matrix_print(const Matrix *matrix) {
 
     const int MAX_PRINT_ROWS = 20;
     const int MAX_PRINT_COLS = 20;
-    unsigned int rows;
-    unsigned int cols;
+    unsigned int rows = matrix->rows;
+    unsigned int cols = matrix->cols;
     char *end_chars = "";
 
     if (matrix->rows > MAX_PRINT_ROWS) {

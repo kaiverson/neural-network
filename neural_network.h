@@ -14,8 +14,8 @@ Vector *vector_init(unsigned int rows, double *values);
 Vector *vector_init_randn(unsigned int rows);
 Vector *vector_init_empty(unsigned int rows);
 void    vector_free(Vector *vector);
-void    vector_print(Vector *vector);
-bool    vector_equal(Vector *a, Vector *b);
+void    vector_print(const Vector *vector);
+bool    vector_equal(const Vector *a, const Vector *b);
 
 
 typedef struct {
@@ -27,16 +27,21 @@ typedef struct {
 Matrix *matrix_init(unsigned int rows, unsigned int cols, double **values);    /* Creates a matrix and fills it with the provided values. */
 Matrix *matrix_init_randn(unsigned int rows, unsigned int cols);    /* Creates a matrix and fills it with random values following the normal distribution. */
 Matrix *matrix_init_identity(unsigned int rows, unsigned int cols);    /* Creates an identity matrix. */
+Matrix *matrix_init_zero(unsigned int rows, unsigned int cols);
 Matrix *matrix_init_empty(unsigned int rows, unsigned int cols);    /* Creates a matrix with uninitialized values. */
+Matrix *matrix_zero(Matrix *matrix);
 void    matrix_free(Matrix *matrix);    /* Frees the memory of a matrix. */
 void    matrix_print(const Matrix *matrix);    /* Prints the values of a matrix. */
 Vector *matrix_times_vector(const Matrix *matrix, const Vector *input, Vector *output);    /* Multiplies a matrix with a vector. */
 
 
 typedef struct {
-    int    size_input;
-    int    size_output;
-    Matrix *parameters;
+    int size_input;
+    int size_output;
+    Matrix *parameters;  
+    Vector *x_input;     
+    Matrix *dL_dW;       
+    Vector *dL_db;
 } LayerDense;
 
 LayerDense *nn_layer_dense_init(int size_input, int size_output);
@@ -44,12 +49,14 @@ void        nn_layer_dense_free(LayerDense *layer);
 void        nn_layer_dense_print(LayerDense *layer);
 Vector     *nn_layer_dense_forward(LayerDense *layer, Vector *x_int, Vector *x_out);
 Vector     *nn_layer_dense_backwards(LayerDense *layer, Vector *x);
+void       *nn_layer_dense_zero_gradients(LayerDense *layer);
 LayerDense *nn_layer_dense_load(char *file);
 void       *nn_layer_dense_save(LayerDense *layer, char *file);
 
 
 Vector *nn_layer_relu(Vector *x);
 Vector *nn_layer_leaky_relu(Vector *x);
+Vector *nn_layer_sigmoid(Vector *x);
 Vector *nn_layer_softmax(Vector *x);
 
 
