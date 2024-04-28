@@ -5,7 +5,20 @@
 #include <math.h>
 
 /* NN_LAYER_DENSE FUNCTIONS */
-LayerDense *nn_layer_dense_init(int size_input, int size_output) {
+LayerDense *nn_layer_dense_init_randn(int size_input, int size_output) {
+    LayerDense *layer;
+    layer = nn_layer_dense_init_empty(size_input, size_output);
+    if (layer == NULL) {
+        return NULL;
+    }
+
+    layer->parameters = matrix_set_randn(layer->parameters);
+
+    return layer;
+}
+
+
+LayerDense *nn_layer_dense_init_empty(int size_input, int size_output) {
     LayerDense *layer;
     layer = malloc(sizeof(LayerDense));
     if (layer == NULL) {
@@ -14,9 +27,26 @@ LayerDense *nn_layer_dense_init(int size_input, int size_output) {
 
     layer->size_input = size_input;
     layer->size_output = size_output;
-    layer->parameters = matrix_init_randn(size_output, size_input);
+    layer->parameters = matrix_init_empty(size_output, size_input);
     if (layer->parameters == NULL) {
         printf("LAYER (DENSE) COULD NOT BE CREATED\n");
+        free(layer);
+        return NULL;
+    }
+
+    layer->dL_db = vector_init_zero(size_output);
+    if (layer->dL_db == NULL) {
+        printf("LAYER (DENSE) COULD NOT BE CREATED\n");
+        matrix_free(layer->parameters);
+        free(layer);
+        return NULL;
+    }
+
+    layer->dL_dW = matrix_init_zero(size_output, size_input);
+    if (layer->dL_dW == NULL) {
+        printf("LAYER (DENSE) COULD NOT BE CREATED\n");
+        vector_free(layer->dL_db);
+        matrix_free(layer->parameters);
         free(layer);
         return NULL;
     }
@@ -26,6 +56,8 @@ LayerDense *nn_layer_dense_init(int size_input, int size_output) {
 
 
 void nn_layer_dense_free(LayerDense *layer) {
+    matrix_free(layer->dL_dW);
+    vector_free(layer->dL_db);
     matrix_free(layer->parameters);
     free(layer);
 }

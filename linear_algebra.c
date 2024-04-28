@@ -39,22 +39,6 @@ Vector *vector_init(unsigned int rows, double *values) {
 }
 
 
-Vector *vector_init_randn(unsigned int rows) {
-    Vector *vector;
-    vector = vector_init_empty(rows);
-    if (vector == NULL) {
-        printf("vector_init_randn error\n");
-        return NULL;
-    }
-
-    for (unsigned int row = 0; row < rows; row++) {
-        vector->values[row] = randn();
-    }
-
-    return vector;
-}
-
-
 Vector *vector_init_empty(unsigned int rows) {
     Vector *vector;
     vector = malloc((sizeof (Vector)));
@@ -71,6 +55,65 @@ Vector *vector_init_empty(unsigned int rows) {
     vector->rows = rows;
 
     return vector;
+}
+
+
+Vector *vector_init_randn(unsigned int rows) {
+    Vector *vector;
+    vector = vector_init_empty(rows);
+    if (vector == NULL) {
+        printf("vector_init_randn error\n");
+        return NULL;
+    }
+
+    vector = vector_set_randn(vector);
+
+    return vector;
+}
+
+
+Vector *vector_init_zero(unsigned int rows) {
+    Vector *vector;
+    vector = vector_init_empty(rows);
+    if (vector == NULL) {
+        printf("vector_init_zero error\n");
+        return NULL;
+    }
+
+    vector = vector_set_zero(vector);
+
+    return vector;
+}
+
+
+Vector *vector_set_randn(Vector *vector) {
+    if (vector == NULL) {
+        printf("NULLPTR\n");
+        return NULL;
+    }
+
+    unsigned int row;
+    for (row = 0; row < vector->rows; row++) {
+
+        vector->values[row] = randn();
+
+    }
+
+    return vector;
+}
+
+
+Vector *vector_set_zero(Vector *vector) {
+    if (vector == NULL) {
+        printf("NULLPTR\n");
+        return NULL;
+    }
+
+    unsigned int row;
+    for (row = 0; row < vector->rows; row++) {
+
+        vector->values[row] = 0;
+    }
 }
 
 
@@ -114,6 +157,41 @@ bool vector_equal(const Vector *a, const Vector *b) {
 Matrix *matrix_init(unsigned int rows, unsigned int cols, double **values);
 
 
+Matrix *matrix_init_empty(unsigned int rows, unsigned int cols) {
+    Matrix *matrix;
+    matrix = malloc(sizeof (Matrix));
+    if (matrix == NULL) {
+        return NULL;
+    }
+
+    matrix->rows = rows;
+    matrix->cols = cols;
+
+    matrix->values = malloc(rows * sizeof(double *));
+    if (matrix == NULL) {
+        free(matrix);
+        return NULL;
+    }
+
+    unsigned int row;
+    unsigned int col;
+    for (row = 0; row < rows; row++) {
+
+        matrix->values[row] = malloc(cols * sizeof(double));
+        if (matrix->values[row] == NULL) {
+            for (int i = 0; i < row; i++) {
+                free(matrix->values[i]);
+                free(matrix);
+            }
+            return NULL;
+        }
+
+    }
+
+    return matrix;
+}
+
+
 Matrix *matrix_init_randn(unsigned int rows, unsigned int cols) {
     Matrix *matrix;
     matrix = matrix_init_empty(rows, cols);
@@ -122,16 +200,7 @@ Matrix *matrix_init_randn(unsigned int rows, unsigned int cols) {
         return NULL;
     }
 
-    unsigned int row, col;
-    for (row = 0; row < rows; row++) {
-
-        for (col = 0; col < cols; col++) {
-
-            matrix->values[row][col] = randn();
-
-        }
-
-    }
+    matrix = matrix_set_randn(matrix);
 
     return matrix;
 }
@@ -180,39 +249,25 @@ Matrix *matrix_init_zero(unsigned int rows, unsigned int cols) {
         return NULL;
     }
 
-    matrix = matrix_zero(matrix);
+    matrix = matrix_set_zero(matrix);
 
     return matrix;
 }
 
 
-Matrix *matrix_init_empty(unsigned int rows, unsigned int cols) {
-    Matrix *matrix;
-    matrix = malloc(sizeof (Matrix));
+Matrix *matrix_set_randn(Matrix *matrix) {
     if (matrix == NULL) {
+        printf("MATRIX RANDN RECIEVED NULL\n");
         return NULL;
     }
 
-    matrix->rows = rows;
-    matrix->cols = cols;
+    unsigned int row, col;
+    for (row = 0; row < matrix->rows; row++) {
 
-    matrix->values = malloc(rows * sizeof(double *));
-    if (matrix == NULL) {
-        free(matrix);
-        return NULL;
-    }
+        for (col = 0; col < matrix->cols; col++) {
 
-    unsigned int row;
-    unsigned int col;
-    for (row = 0; row < rows; row++) {
+            matrix->values[row][col] = randn();
 
-        matrix->values[row] = malloc(cols * sizeof(double));
-        if (matrix->values[row] == NULL) {
-            for (int i = 0; i < row; i++) {
-                free(matrix->values[i]);
-                free(matrix);
-            }
-            return NULL;
         }
 
     }
@@ -221,7 +276,7 @@ Matrix *matrix_init_empty(unsigned int rows, unsigned int cols) {
 }
 
 
-Matrix *matrix_zero(Matrix *matrix) {
+Matrix *matrix_set_zero(Matrix *matrix) {
     if (matrix == NULL) {
         printf("MATRIX ZERO RECIEVED NULLPTR\n");
         return NULL;

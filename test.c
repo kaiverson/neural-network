@@ -17,10 +17,11 @@ int main() {
     
 
     if (passes) {
-        printf("PASSES\n");
+        printf("PASSES ");
     } else {
-        printf("FAILS\n");
+        printf("FAILS ");
     }
+    printf("MATRIX TIMES VECTOR TEST\n");
 
     matrix_free(identity);
     vector_free(vector_in);
