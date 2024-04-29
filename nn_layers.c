@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <math.h>
 
-/* NN_LAYER_DENSE FUNCTIONS */
-LayerDense *nn_layer_dense_init_randn(int size_input, int size_output) {
+/* NN_DENSE FUNCTIONS */
+LayerDense *nn_dense_init_randn(int size_input, int size_output) {
     LayerDense *layer;
-    layer = nn_layer_dense_init_empty(size_input, size_output);
+    layer = nn_dense_init_empty(size_input, size_output);
     if (layer == NULL) {
         return NULL;
     }
@@ -18,7 +18,7 @@ LayerDense *nn_layer_dense_init_randn(int size_input, int size_output) {
 }
 
 
-LayerDense *nn_layer_dense_init_empty(int size_input, int size_output) {
+LayerDense *nn_dense_init_empty(int size_input, int size_output) {
     LayerDense *layer;
     layer = malloc(sizeof(LayerDense));
     if (layer == NULL) {
@@ -55,7 +55,7 @@ LayerDense *nn_layer_dense_init_empty(int size_input, int size_output) {
 }
 
 
-void nn_layer_dense_free(LayerDense *layer) {
+void nn_dense_free(LayerDense *layer) {
     matrix_free(layer->dL_dW);
     vector_free(layer->dL_db);
     matrix_free(layer->parameters);
@@ -63,28 +63,28 @@ void nn_layer_dense_free(LayerDense *layer) {
 }
 
 
-void nn_layer_dense_print(LayerDense *layer) {
+void nn_dense_print(LayerDense *layer) {
     matrix_print(layer->parameters);
 }
 
 
-Vector *nn_layer_dense_forward(LayerDense *layer, Vector *x_in, Vector *x_out) {
+Vector *nn_dense_forward(LayerDense *layer, Vector *x_in, Vector *x_out) {
     x_out = matrix_times_vector(layer->parameters, x_in, x_out);
     return x_out;
 }
 
 
-void *nn_layer_dense_zero_grad(LayerDense *layer);
+void *nn_dense_zero_grad(LayerDense *layer);
 
 
-LayerDense *nn_layer_dense_load(char *file);
-void       *nn_layer_dense_save(LayerDense *layer, char *file);
-/* END NN_LAYER_DENSE_FUNCTIONS */
+LayerDense *nn_dense_load(char *file);
+void       *nn_dense_save(LayerDense *layer, char *file);
+/* END NN_DENSE_FUNCTIONS */
 
 
 
 /* ACTIVATION FUNCTIONS */
-Vector *nn_layer_relu(Vector *x) {
+Vector *nn_relu(Vector *x) {
     unsigned int i;
     for (i = 0; i < x->rows; i++) {
         if (x->values[i] < 0) {
@@ -96,7 +96,7 @@ Vector *nn_layer_relu(Vector *x) {
 }
 
 
-Vector *nn_layer_leaky_relu(Vector *x) {
+Vector *nn_leaky_relu(Vector *x) {
     unsigned int i;
     for (i = 0; i < x->rows; i++) {
         if (x->values[i] < 0) {
@@ -108,7 +108,7 @@ Vector *nn_layer_leaky_relu(Vector *x) {
 }
 
 
-Vector *nn_layer_sigmoid(Vector *x) {
+Vector *nn_sigmoid(Vector *x) {
     unsigned int row;
     double exponential = 0;
 
@@ -120,7 +120,7 @@ Vector *nn_layer_sigmoid(Vector *x) {
 }
 
 
-Vector *nn_layer_softmax(Vector *x) {
+Vector *nn_softmax(Vector *x) {
     unsigned int row;
     double exponential_sum = 0;
     double exponential;
@@ -138,3 +138,25 @@ Vector *nn_layer_softmax(Vector *x) {
     return x;
 }
 /* END ACTIVATION FUNCTIONS */
+
+
+/* LOSS FUNCTIONS */
+double nn_MSELoss(const Vector *input, const Vector *target) {
+    if (input->rows != target->rows) {
+        printf("LOSS FUNCTION INPUT AND TARGET ARE DIFFERENT SIZES (BAD)\n");
+        return -100000;
+    }
+
+    double mean_squared_error = 0;
+
+    unsigned int row;
+    for (row = 0; row < input->rows; row++) {
+
+        mean_squared_error += (input->values[row] - target->values[row]) * (input->values[row] - target->values[row]);
+
+    }
+
+    mean_squared_error /= input->rows;
+    return mean_squared_error;
+}
+/* END LOSS FUNCTIONS */

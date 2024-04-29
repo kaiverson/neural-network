@@ -114,6 +114,8 @@ Vector *vector_set_zero(Vector *vector) {
 
         vector->values[row] = 0;
     }
+
+    return vector;
 }
 
 
@@ -147,6 +149,24 @@ bool vector_equal(const Vector *a, const Vector *b) {
     }
 
     return true;
+}
+
+
+int vector_argmax(const Vector *vector) {
+    double max_value = vector->values[0];
+    int max_value_index = 0;
+
+    unsigned int index;
+    for (index = 0; index < vector->rows; index++) {
+
+        if (vector->values[index] > max_value) {
+            max_value = vector->values[index];
+            max_value_index = index;
+        }
+
+    }
+
+    return max_value_index;
 }
 /* END VECTOR FUNCTIONS */
 

@@ -14,11 +14,12 @@ Vector *vector_init(unsigned int rows, double *values);   /* Creates a vector an
 Vector *vector_init_empty(unsigned int rows);    /* Creates a vector with uninitialized values. */
 Vector *vector_init_randn(unsigned int rows);    /* Creates a vector and fills it with random values following the normal distribution. */
 Vector *vector_init_zero(unsigned int rows);    /* Creates a vector and fills it with zeros. */
-Vector *vector_set_randn(Vector *vector);
-Vector *vector_set_zero(Vector *vector);
+Vector *vector_set_randn(Vector *vector);    /* Set all of the values of a vector to randn. */
+Vector *vector_set_zero(Vector *vector);    /* Set all of the values of a vector to zero.*/
 void    vector_free(Vector *vector);    /* Frees the memory of a vector. */
 void    vector_print(const Vector *vector);    /* Prints the values of a vector. */
 bool    vector_equal(const Vector *a, const Vector *b);    /* Determines the equality of two vectors. */
+int     vector_argmax(const Vector *vector);    /* Returns the vector index that contains the largest value. */
 
 
 typedef struct {
@@ -32,7 +33,7 @@ Matrix *matrix_init_empty(unsigned int rows, unsigned int cols);    /* Creates a
 Matrix *matrix_init_randn(unsigned int rows, unsigned int cols);    /* Creates a matrix and fills it with random values following the normal distribution. */
 Matrix *matrix_init_identity(unsigned int rows, unsigned int cols);    /* Creates an identity matrix. */
 Matrix *matrix_init_zero(unsigned int rows, unsigned int cols);    /* Creates a mtrix and fills it with zeros. */
-Matrix *matrix_set_randn(Matrix *matrix);    /* Set all of the values of a matrix to randn values. */
+Matrix *matrix_set_randn(Matrix *matrix);    /* Set all of the values of a matrix to randn. */
 Matrix *matrix_set_zero(Matrix *matrix);    /* Set all of the values of a matrix to zero. */
 void    matrix_free(Matrix *matrix);    /* Frees the memory of a matrix. */
 void    matrix_print(const Matrix *matrix);    /* Prints the values of a matrix. */
@@ -48,21 +49,24 @@ typedef struct {
     Vector *dL_db;
 } LayerDense;
 
-LayerDense *nn_layer_dense_init_randn(int size_input, int size_output);    /* Creates a dense nn layer and fills it with randn parameters. */
-LayerDense *nn_layer_dense_init_empty(int size_input, int size_output);    /* Creates a dense nn layer with uninitialized parameters. */
-void        nn_layer_dense_free(LayerDense *layer);    /* Frees the memory of a dense nn layer. */
-void        nn_layer_dense_print(LayerDense *layer);    /* Prints the contents of a dense nn layer. */
-Vector     *nn_layer_dense_forward(LayerDense *layer, Vector *x_int, Vector *x_out);    /* Computes the forward pass of a dense nn layer. Note that you provide the memory this uses for the output. */
-Vector     *nn_layer_dense_backwards(LayerDense *layer, Vector *x);    /* Computes the backwards pass of a dense nn layer. */
-void       *nn_layer_dense_zero_gradients(LayerDense *layer);    /* Sets the gradients to zero. */
-LayerDense *nn_layer_dense_load(char *file);    /* Loads the nn parameters from a file and insertes them into the dense nn layer. */
-void       *nn_layer_dense_save(LayerDense *layer, char *file);    /* Saves the dense nn layer parameters and insertes them into a file. */
+LayerDense *nn_dense_init_randn(int size_input, int size_output);    /* Creates a dense nn layer and fills it with randn parameters. */
+LayerDense *nn_dense_init_empty(int size_input, int size_output);    /* Creates a dense nn layer with uninitialized parameters. */
+void        nn_dense_free(LayerDense *layer);    /* Frees the memory of a dense nn layer. */
+void        nn_dense_print(LayerDense *layer);    /* Prints the contents of a dense nn layer. */
+Vector     *nn_dense_forward(LayerDense *layer, Vector *x_int, Vector *x_out);    /* Computes the forward pass of a dense nn layer. Note that you provide the memory this uses for the output. */
+Vector     *nn_dense_backwards(LayerDense *layer, Vector *x);    /* Computes the backwards pass of a dense nn layer. */
+void       *nn_dense_zero_gradients(LayerDense *layer);    /* Sets the gradients to zero. */
+LayerDense *nn_dense_load(char *file);    /* Loads the nn parameters from a file and insertes them into the dense nn layer. */
+void       *nn_dense_save(LayerDense *layer, char *file);    /* Saves the dense nn layer parameters and insertes them into a file. */
 
 
-Vector *nn_layer_relu(Vector *x);
-Vector *nn_layer_leaky_relu(Vector *x);
-Vector *nn_layer_sigmoid(Vector *x);
-Vector *nn_layer_softmax(Vector *x);
+Vector *nn_relu(Vector *x);
+Vector *nn_leaky_relu(Vector *x);
+Vector *nn_sigmoid(Vector *x);
+Vector *nn_softmax(Vector *x);
+
+
+double nn_MSELoss(const Vector *input, const Vector *target);
 
 
 #endif /* __NEURAL_NETWORK_H__ */
