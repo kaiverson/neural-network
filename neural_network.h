@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-double randn();    /* Returns random numbers with the normal distribution. Name inspired by numpy! */
+double randn(double mean, double variance);    /* Returns random numbers with the normal distribution. Name inspired by numpy! */
 
 typedef struct {
     unsigned int rows;
@@ -67,7 +67,8 @@ Vector *nn_sigmoid(Vector *x);
 Vector *nn_softmax(Vector *x);
 
 
-double nn_MSELoss(const Vector *input, const Vector *target);
+double nn_mean_squared_error_loss(const Vector *y_hat, const Vector *y);
+double nn_cross_entropy_loss(const Vector *y_hat, const Vector *y);
 
 
 #endif /* __NEURAL_NETWORK_H__ */

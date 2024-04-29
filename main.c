@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 
         y->values[index] = 1.0;
         
-        printf("Loss when y->values[%d] == 1: %f\n", index, nn_MSELoss(y_pred, y));
+        printf("Loss when y->values[%d] == 1: %f\n", index, nn_cross_entropy_loss(y_pred, y));
 
         vector_set_zero(y);
     }

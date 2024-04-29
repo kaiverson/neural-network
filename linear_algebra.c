@@ -7,7 +7,7 @@
 
 
 /* RANDOM */
-double randn() {
+double randn(double mean, double variance) {
     double u1, u2;
     do {
         u1 = rand() / (double)RAND_MAX;
@@ -16,7 +16,7 @@ double randn() {
 
     double randn = sqrtf(-2 * logf(u1)) * cosf(2 * 3.14159 * u2);
 
-    return randn / 10;
+    return randn * sqrt(variance) + mean;
 }
 /* END RANDOM */
 
@@ -95,7 +95,7 @@ Vector *vector_set_randn(Vector *vector) {
     unsigned int row;
     for (row = 0; row < vector->rows; row++) {
 
-        vector->values[row] = randn();
+        vector->values[row] = randn(0, sqrt(2.0 / (double) vector->rows));
 
     }
 
@@ -286,11 +286,13 @@ Matrix *matrix_set_randn(Matrix *matrix) {
 
         for (col = 0; col < matrix->cols; col++) {
 
-            matrix->values[row][col] = randn();
+            matrix->values[row][col] = randn(0, sqrt(2.0 / (double) matrix->cols));
 
         }
 
     }
+
+    printf("%d\n", matrix->cols);
 
     return matrix;
 }
