@@ -38,6 +38,7 @@ Matrix *matrix_set_zero(Matrix *matrix);    /* Set all of the values of a matrix
 void    matrix_free(Matrix *matrix);    /* Frees the memory of a matrix. */
 void    matrix_print(const Matrix *matrix);    /* Prints the values of a matrix. */
 Vector *matrix_times_vector(const Matrix *matrix, const Vector *input, Vector *output);    /* Multiplies a matrix with a vector. Note that you provide the memory this uses for the output. */
+Vector *matrix_times_vector_plus_vector(const Matrix *matrix, const Vector *input, Vector *output);    /* Multiplies a matrix with a vector and adds a vector. Added vector is contained in the last col of the matrix. */
 
 
 typedef struct {
@@ -46,7 +47,7 @@ typedef struct {
     Matrix *parameters;  
     Vector *x_input;     
     Matrix *dL_dW;       
-    Vector *dL_db;
+    // Vector *dL_db;
 } LayerDense;
 
 LayerDense *nn_dense_init_randn(int size_input, int size_output);    /* Creates a dense nn layer and fills it with randn parameters. */

@@ -27,13 +27,14 @@ LayerDense *nn_dense_init_empty(int size_input, int size_output) {
 
     layer->size_input = size_input;
     layer->size_output = size_output;
-    layer->parameters = matrix_init_empty(size_output, size_input);
+    layer->parameters = matrix_init_empty(size_output, size_input + 1);
     if (layer->parameters == NULL) {
         printf("LAYER (DENSE) COULD NOT BE CREATED\n");
         free(layer);
         return NULL;
     }
 
+    /*
     layer->dL_db = vector_init_zero(size_output);
     if (layer->dL_db == NULL) {
         printf("LAYER (DENSE) COULD NOT BE CREATED\n");
@@ -41,11 +42,12 @@ LayerDense *nn_dense_init_empty(int size_input, int size_output) {
         free(layer);
         return NULL;
     }
+    */
 
-    layer->dL_dW = matrix_init_zero(size_output, size_input);
+    layer->dL_dW = matrix_init_zero(size_output, size_input + 1);
     if (layer->dL_dW == NULL) {
         printf("LAYER (DENSE) COULD NOT BE CREATED\n");
-        vector_free(layer->dL_db);
+        // vector_free(layer->dL_db);
         matrix_free(layer->parameters);
         free(layer);
         return NULL;
@@ -57,7 +59,7 @@ LayerDense *nn_dense_init_empty(int size_input, int size_output) {
 
 void nn_dense_free(LayerDense *layer) {
     matrix_free(layer->dL_dW);
-    vector_free(layer->dL_db);
+    // vector_free(layer->dL_db);
     matrix_free(layer->parameters);
     free(layer);
 }
@@ -69,7 +71,7 @@ void nn_dense_print(LayerDense *layer) {
 
 
 Vector *nn_dense_forward(LayerDense *layer, Vector *x_in, Vector *x_out) {
-    x_out = matrix_times_vector(layer->parameters, x_in, x_out);
+    x_out = matrix_times_vector_plus_vector(layer->parameters, x_in, x_out);
     return x_out;
 }
 

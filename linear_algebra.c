@@ -388,10 +388,43 @@ Vector *matrix_times_vector(const Matrix *matrix, const Vector *input, Vector *o
             product = matrix->values[mat_row][mat_col] * input->values[mat_col];
             dot_product += product;
 
-            if (product > 1000 | product < -1000) {
+        }
+        
+        output->values[mat_row] = dot_product;
 
-                printf("Very large product: %.5f times %.5f == %.5f\n", matrix->values[mat_row][mat_col], input->values[mat_col]);
+    }
+
+    return output;
+}
+
+
+Vector *matrix_times_vector_plus_vector(const Matrix *matrix, const Vector *input, Vector *output) {
+    if (matrix->cols != input->rows + 1) {
+        printf("Error: matrix cols (%d) != vector input rows (%d) + 1\n", matrix->cols, input->rows);
+        return NULL;
+    }
+
+    if (matrix->rows != output->rows) {
+        printf("Error: matrix rows (%d) != vector output rows (%d)\n", matrix->rows, output->rows);
+        return NULL;
+    }
+
+    double dot_product;
+    double product;
+    unsigned int mat_row;
+    unsigned int mat_col;
+    for (mat_row = 0; mat_row < matrix->rows; mat_row++) {
+
+        dot_product = 0;
+        for (mat_col = 0; mat_col < matrix->cols; mat_col++) {
+
+            if (mat_col == matrix->cols - 1) {
+                product = matrix->values[mat_row][mat_col];
+            } else {
+                product = matrix->values[mat_row][mat_col] * input->values[mat_col];
             }
+
+            dot_product += product;
 
         }
         

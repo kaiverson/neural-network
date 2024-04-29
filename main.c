@@ -35,7 +35,7 @@ Vector *nn_forward(NeuralNetwork *nn, Vector *x) {
     nn->buffer1 = nn_relu(nn->buffer1);
 
     nn->buffer2 = nn_dense_forward(nn->dense2, nn->buffer1, nn->buffer2);
-    nn->buffer2 = nn_sigmoid(nn->buffer2);
+    nn->buffer2 = nn_softmax(nn->buffer2);
 
     return nn->buffer2;
 }
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
     printf("y_pred: ");
     vector_print(y_pred);
 
-    Vector *y = vector_init_empty(10);
+    Vector *y = vector_init_zero(10);
     
     unsigned int index;
     for (index = 0; index < y->rows; index++) {
