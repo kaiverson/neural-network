@@ -143,8 +143,8 @@ Vector *nn_softmax(Vector *x) {
 
 
 /* LOSS FUNCTIONS */
-double nn_MSELoss(const Vector *input, const Vector *target) {
-    if (input->rows != target->rows) {
+double nn_mean_squared_error_loss(const Vector *y_hat, const Vector *y) {
+    if (y_hat->rows != y->rows) {
         printf("LOSS FUNCTION INPUT AND TARGET ARE DIFFERENT SIZES (BAD)\n");
         return -100000;
     }
@@ -152,13 +152,32 @@ double nn_MSELoss(const Vector *input, const Vector *target) {
     double mean_squared_error = 0;
 
     unsigned int row;
-    for (row = 0; row < input->rows; row++) {
+    for (row = 0; row < y_hat->rows; row++) {
 
-        mean_squared_error += (input->values[row] - target->values[row]) * (input->values[row] - target->values[row]);
+        mean_squared_error += (y_hat->values[row] - y->values[row]) * (y_hat->values[row] - y->values[row]);
 
     }
 
-    mean_squared_error /= input->rows;
+    mean_squared_error /= y_hat->rows;
     return mean_squared_error;
+}
+
+
+double nn_cross_entropy_loss(const Vector *y_hat, const Vector *y) {
+    if (y_hat->rows != y->rows) {
+        printf("LOSS FUNCTION Y_HAT AND Y ARE DIFFERENT SIZES (BAD)\n");
+        return -100000;
+    }
+
+    double cross_entropy_loss = 0;
+
+    unsigned int row;
+    for (row = 0; row < y_hat->rows; row++) {
+
+        cross_entropy_loss -= (y->values[row] * log(y_hat->values[row]));
+
+    }
+
+    return cross_entropy_loss;
 }
 /* END LOSS FUNCTIONS */

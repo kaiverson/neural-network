@@ -4,10 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
+#include <stdbool.h>
 
 
 /* RANDOM */
-double randn() {
+double randn(double mean, double variance) {
     double u1, u2;
     do {
         u1 = rand() / (double)RAND_MAX;
@@ -16,7 +18,7 @@ double randn() {
 
     double randn = sqrtf(-2 * logf(u1)) * cosf(2 * 3.14159 * u2);
 
-    return randn / 10;
+    return randn * sqrt(variance) + mean;
 }
 /* END RANDOM */
 
@@ -95,7 +97,7 @@ Vector *vector_set_randn(Vector *vector) {
     unsigned int row;
     for (row = 0; row < vector->rows; row++) {
 
-        vector->values[row] = randn();
+        vector->values[row] = randn(0, sqrt(2.0 / (double) vector->rows));
 
     }
 
@@ -286,7 +288,7 @@ Matrix *matrix_set_randn(Matrix *matrix) {
 
         for (col = 0; col < matrix->cols; col++) {
 
-            matrix->values[row][col] = randn();
+            matrix->values[row][col] = randn(0, sqrt(2.0 / (double) matrix->cols));
 
         }
 
@@ -314,6 +316,23 @@ Matrix *matrix_set_zero(Matrix *matrix) {
     }
 
     return matrix;
+}
+
+
+Vector *matrix_get_row(const Matrix *matrix, const unsigned int row_index, Vector *row) {
+    if (matrix == NULL | row_index >= matrix->rows | row->rows != matrix->cols) {
+        printf("MATRIX_GET_ROW ERROR\n");
+        return NULL;
+    }
+
+    unsigned int col_index;
+    for (col_index = 0; col_index < matrix->cols; col_index++) {
+
+        row->values[col_index] = matrix->values[row_index][col_index];
+
+    }
+
+    return row;
 }
 
 
@@ -435,3 +454,118 @@ Vector *matrix_times_vector_plus_vector(const Matrix *matrix, const Vector *inpu
     return output;
 }
 /* END MATRIX FUNCTIONS */
+
+
+
+
+/* DATA LOADING FUNCTIONS */
+Vector *mnist_load_labels(Vector *labels, char *file_name) {
+    printf("LOADING MNIST LABELS FROM %s .....\n", file_name);
+
+    FILE *file_pointer;
+    char label_buffer[3500];
+    char *token;
+
+    file_pointer = fopen(file_name, "r");  
+
+    fgets(label_buffer, 3500, file_pointer);
+    fgets(label_buffer, 3500, file_pointer);
+
+    int image = 0;
+    int pixel = 0;
+    while (feof(file_pointer) != true) {
+        fgets(label_buffer, 3500, file_pointer);
+
+        token = strtok(label_buffer, ",");
+        labels->values[image] = strtod(token, NULL);
+
+        image++;
+    }
+
+    printf("%d MNIST LABELS LOADED!\n", image);
+
+    return labels;
+}
+
+
+Matrix *mnist_load_images(Matrix *images, char *file_name) {
+
+    printf("LOADING MNIST IMAGES FROM %s .....\n", file_name);
+
+    FILE *file_pointer;
+    char image_buffer[3500];
+    char *token;
+
+    file_pointer = fopen(file_name, "r");  
+
+    fgets(image_buffer, 3500, file_pointer);
+    fgets(image_buffer, 3500, file_pointer);
+
+    int image = 0;
+    int pixel = 0;
+    while (feof(file_pointer) != true) {
+        fgets(image_buffer, 3500, file_pointer);
+
+        token = strtok(image_buffer, ",");
+        token = strtok(NULL, ",");
+
+        for (pixel = 0; pixel < 784; pixel++) {
+
+            images->values[image][pixel] = strtod(token, NULL) / 256.0;
+            token = strtok(NULL, ",");
+
+        }
+
+        image++;
+    }
+
+    printf("%d MNIST IMAGES LOADED!\n", image);
+
+    return images;
+}
+
+
+void   *mnist_image_print(const Matrix *images, const unsigned int image_row, Vector *image_buffer) {
+    if (images == NULL | image_row > images->rows) {
+        printf("COULD NOT PRINT NMIST IMAGE: INVALID IMAGE\n");
+    }
+
+    image_buffer = matrix_get_row(images, image_row, image_buffer);
+
+    unsigned int index;
+
+    printf("\n");
+    for (index = 0; index < 30; index++) {
+        printf("%%%%%%");
+    }
+    printf("\n");
+
+    for (index = 0; index < 28*28; index++) {
+
+        if (index % 28 == 0) {
+            printf("%%%%%%");
+        }
+
+        if (image_buffer->values[index] == 0) {
+            printf("   ");
+        } else if (image_buffer->values[index] < 50.0 / 256.0) {
+            printf("---");
+        } else if (image_buffer->values[index] < 150.0 / 256.0) {
+            printf("+++");
+        } else {
+            printf("###");
+        }
+
+        if (index % 28 == 27) {
+            printf("%%%%%%\n");
+        }
+    }
+
+
+    for (index = 0; index < 30; index++) {
+        printf("%%%%%%");
+    }
+    printf("\n\n");
+
+}
+/* END DATA LOADING FUNCTION */
