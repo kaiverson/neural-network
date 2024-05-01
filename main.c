@@ -6,47 +6,38 @@
 /* BUILD UR NEURAL NETWORK HERE! */
 typedef struct {
     LayerDense *dense1;
-    Vector *buffer1;
     LayerDense *dense2;
-    Vector *buffer2;
     LayerDense *dense3;
-    Vector *buffer3;
 } NeuralNetwork;
 
 NeuralNetwork *nn_init() {
     NeuralNetwork *nn = malloc(sizeof(NeuralNetwork));
     
     nn->dense1 = nn_dense_init_randn(784, 64);  // Input size: 28x28x1 = 784
-    nn->buffer1 = vector_init_empty(64);
     nn->dense2 = nn_dense_init_randn(64, 16);
-    nn->buffer2 = vector_init_empty(16);
     nn->dense3 = nn_dense_init_randn(16, 10);     // Output size: 10 classes
-    nn->buffer3 = vector_init_empty(10);
     
     return nn;
 }
 
 void nn_free(NeuralNetwork *nn) {
     nn_dense_free(nn->dense1);
-    vector_free(nn->buffer1);
     nn_dense_free(nn->dense2);
-    vector_free(nn->buffer2);
     nn_dense_free(nn->dense3);
-    vector_free(nn->buffer3);
     free(nn);
 }
 
 Vector *nn_forward(NeuralNetwork *nn, Vector *x) {
-    nn->buffer1 = nn_dense_forward(nn->dense1, x, nn->buffer1);
-    nn->buffer1 = nn_relu(nn->buffer1);
+    nn->dense1->buffer = nn_dense_forward(nn->dense1, x);
+    nn->dense1->buffer = nn_relu(nn->dense1->buffer);
 
-    nn->buffer2 = nn_dense_forward(nn->dense2, nn->buffer1, nn->buffer2);
-    nn->buffer2 = nn_relu(nn->buffer2);
+    nn->dense2->buffer = nn_dense_forward(nn->dense2, nn->dense1->buffer);
+    nn->dense2->buffer = nn_relu(nn->dense2->buffer);
     
-    nn->buffer3 = nn_dense_forward(nn->dense3, nn->buffer2, nn->buffer3);
-    nn->buffer3 = nn_softmax(nn->buffer3);
+    nn->dense3->buffer = nn_dense_forward(nn->dense3, nn->dense2->buffer);
+    nn->dense3->buffer = nn_softmax(nn->dense3->buffer);
 
-    return nn->buffer3;
+    return nn->dense3->buffer;
 }
 
 
@@ -115,18 +106,17 @@ int main(int argc, char **argv) {
 
     int prediction;
     int label;
-    for (int i = 0; i < 100; i++) {
-        label = mnist_labels->values[i];
+    int row = 0;
+    for (int digit = 0; digit < 10; digit++) {
+        do {
+            row++;
+            label = mnist_labels->values[row];
+        } while (label != digit);
 
-        if (label != 4) {
-            continue;
-        }
-
-
-        prediction = vector_argmax(nn_forward(nn, matrix_get_row(mnist_images, i, image_buffer)));
+        prediction = vector_argmax(nn_forward(nn, matrix_get_row(mnist_images, row, image_buffer)));
         printf("NN prediction: %d\n", prediction);
-        printf("  Image label: %d", (int) mnist_labels->values[i]);
-        mnist_image_print(mnist_images, i, image_buffer);
+        printf("  Image label: %d", (int) mnist_labels->values[row]);
+        mnist_image_print(mnist_images, row, image_buffer);
 
     }
 

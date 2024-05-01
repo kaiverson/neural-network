@@ -49,7 +49,8 @@ void   *mnist_image_print(const Matrix *images, const unsigned int image_row, Ve
 typedef struct {
     int size_input;
     int size_output;
-    Matrix *parameters;  
+    Matrix *parameters; 
+    Vector *buffer; 
     Vector *x_input;     
     Matrix *dL_dW;       
     // Vector *dL_db;
@@ -59,7 +60,7 @@ LayerDense *nn_dense_init_randn(int size_input, int size_output);    /* Creates 
 LayerDense *nn_dense_init_empty(int size_input, int size_output);    /* Creates a dense nn layer with uninitialized parameters. */
 void        nn_dense_free(LayerDense *layer);    /* Frees the memory of a dense nn layer. */
 void        nn_dense_print(LayerDense *layer);    /* Prints the contents of a dense nn layer. */
-Vector     *nn_dense_forward(LayerDense *layer, Vector *x_int, Vector *x_out);    /* Computes the forward pass of a dense nn layer. Note that you provide the memory this uses for the output. */
+Vector     *nn_dense_forward(LayerDense *layer, Vector *x_int);    /* Computes the forward pass of a dense nn layer. Note that you provide the memory this uses for the output. */
 Vector     *nn_dense_backwards(LayerDense *layer, Vector *x);    /* Computes the backwards pass of a dense nn layer. */
 void       *nn_dense_zero_gradients(LayerDense *layer);    /* Sets the gradients to zero. */
 LayerDense *nn_dense_load(char *file);    /* Loads the nn parameters from a file and insertes them into the dense nn layer. */

@@ -547,7 +547,7 @@ void   *mnist_image_print(const Matrix *images, const unsigned int image_row, Ve
         }
 
         if (image_buffer->values[index] == 0) {
-            printf("   ");
+            printf(" . ");
         } else if (image_buffer->values[index] < 50.0 / 256.0) {
             printf("---");
         } else if (image_buffer->values[index] < 150.0 / 256.0) {
