@@ -46,42 +46,6 @@ Vector *nn_forward(NeuralNetwork *nn, Vector *x) {
 int main(int argc, char **argv) {
     srand(6);
 
-
-    Vector *x = vector_init_randn(784);
-    NeuralNetwork *nn = nn_init();
-
-    Vector *y_pred = nn_forward(nn, x);
-
-    printf("y_pred: ");
-    vector_print(y_pred);
-
-    Vector *y = vector_init_zero(10);
-    
-    unsigned int index;
-    for (index = 0; index < y->rows; index++) {
-
-        y->values[index] = 1.0;
-        
-        printf("Loss when digit is %d: %f\n", index, nn_cross_entropy_loss(y_pred, y));
-
-        vector_set_zero(y);
-    }
-
-    printf("NN predicted the digit: %d\n", vector_argmax(y_pred));
-
-
-    Matrix *matrix = matrix_init_randn(3, 5);
-    matrix_print(matrix);
-
-    Vector *vector = vector_init_empty(5);
-    vector_print(vector);
-
-    vector = matrix_get_row(matrix, 2, vector);
-    vector_print(vector);
-
-    char *test = "123";
-    printf("%f\n", strtof(test, NULL));
-
     Matrix *mnist_images = matrix_init_empty(60001, 784);
     mnist_images = mnist_load_images(mnist_images, "mnist_train.csv");
 
@@ -89,8 +53,9 @@ int main(int argc, char **argv) {
     Vector *mnist_labels = vector_init_empty(60001);
     mnist_labels = mnist_load_labels(mnist_labels, "mnist_train.csv");
 
-    int accuray = 0;
+    NeuralNetwork *nn = nn_init();
 
+    int accuray = 0;
     for (int i = 0; i < 60001; i++) {
         // printf("NN prediction: %d\n", vector_argmax(nn_forward(nn, matrix_get_row(mnist_images, i, image_buffer))));
         // printf("  Image label: %d", (int) mnist_labels->values[i]);
@@ -101,8 +66,7 @@ int main(int argc, char **argv) {
         }
 
     }
-
-    printf("%d / 60001 correct predictions\n%lf%%", accuray, (double) accuray / (double) 60001);
+    printf("%d / 60001 correct predictions\n%.2lf%%\n\n", accuray, 100 * (double) accuray / (double) 60001);
 
     int prediction;
     int label;
@@ -115,12 +79,20 @@ int main(int argc, char **argv) {
 
         prediction = vector_argmax(nn_forward(nn, matrix_get_row(mnist_images, row, image_buffer)));
         printf("NN prediction: %d\n", prediction);
-        printf("  Image label: %d", (int) mnist_labels->values[row]);
+        printf("  Image label: %d\n", (int) mnist_labels->values[row]);
         mnist_image_print(mnist_images, row, image_buffer);
 
     }
 
+    Vector *a_buf = vector_init_randn(8);
+    Vector *d_val = vector_init_randn(8);
 
+    vector_print(d_val);
+    d_val = nn_relu_backwards(a_buf, d_val);
+    vector_print(d_val);
+
+
+    free(mnist_images);
     free(nn);
 
     return 0;

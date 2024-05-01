@@ -71,7 +71,8 @@ Vector *nn_relu(Vector *x);
 Vector *nn_leaky_relu(Vector *x);
 Vector *nn_sigmoid(Vector *x);
 Vector *nn_softmax(Vector *x);
-
+Vector *nn_relu_backwards(Vector *buffer, Vector *d_values);
+Vector *nn_softmax_backwards(Matrix *buffer, Matrix *d_values);
 double nn_mean_squared_error_loss(const Vector *y_hat, const Vector *y);
 double nn_cross_entropy_loss(const Vector *y_hat, const Vector *y);
 

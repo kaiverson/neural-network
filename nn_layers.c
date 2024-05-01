@@ -148,6 +148,61 @@ Vector *nn_softmax(Vector *x) {
 
     return x;
 }
+
+
+Vector *nn_relu_backwards(Vector *buffer, Vector *d_values) {
+    if (buffer->rows != d_values->rows) {
+        printf("VECTORS IN RELU BACKWARDS ARE A DIFFERENT SIZE buffer->rows != d_value->rows\n");
+        return NULL;
+    }
+
+    unsigned int row;
+    for (row = 0; row < buffer->rows; row++) {
+        // Uses fact that true == 1 and false == 0.
+        d_values->values[row] *= (buffer->values[row] > 0);
+
+    }
+
+    return d_values;
+}
+
+
+Vector *nn_softmax_backwards(Matrix *buffer, Matrix *d_values) {
+    if (buffer->rows != d_values->rows || buffer->cols != d_values->cols) {
+        printf("MATRICES IN SOFTMAX BACKWARDS ARE OF DIFFERENT SIZES.\n");
+        return NULL;
+    }
+
+    double sum_exp;
+    unsigned int row;
+    unsigned int col;
+    for (row = 0; row < buffer->rows; row++) {
+
+        sum_exp = 0.0;
+        for (col = 0; col < buffer->cols; col++) {
+
+            sum_exp += exp(buffer->values[row][col]);
+
+        }
+    }
+
+
+
+    for (unsigned int i = 0; i < result->rows; i++) {
+        // Calculate the denominator for softmax
+        double sum_exp = 0.0;
+        for (unsigned int j = 0; j < buffer->cols; j++) {
+            sum_exp += exp(buffer->values[i][j]);
+        }
+
+        // Calculate softmax and its derivative
+        for (unsigned int j = 0; j < result->cols; j++) {
+            double softmax = exp(buffer->values[i][j]) / sum_exp;
+            double softmax_derivative = softmax * (1 - softmax); // Derivative of softmax
+            result->values[i][j] = softmax_derivative * d_values->values[i][j];
+        }
+    }
+}
 /* END ACTIVATION FUNCTIONS */
 
 
