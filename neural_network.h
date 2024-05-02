@@ -44,7 +44,7 @@ Vector *matrix_times_vector_plus_vector(const Matrix *matrix, const Vector *inpu
 
 Vector *mnist_load_labels(Vector *labels, char *file_name);    /* Load mnist labels into a matrix. Skips header and images. */
 Matrix *mnist_load_images(Matrix *images, char *file_name);    /* Load mnist images into a matrix. Skips header and label. Get an image using matrix_get_row. */
-void   *mnist_image_print(const Matrix *images, const unsigned int image_row, Vector *image_buffer);    /* Prints ascii art of an mnist image. --++## */
+void   *mnist_image_print(const Matrix *images, const unsigned int image_row, Vector *image_buffer);    /* Prints ascii art of an mnist image using: . ---+++### */
 
 typedef struct {
     int size_input;
@@ -73,7 +73,7 @@ Vector *nn_sigmoid(Vector *x);
 Vector *nn_softmax(Vector *x);
 Vector *nn_relu_backwards(Vector *buffer, Vector *d_values);
 Vector *nn_softmax_backwards(Matrix *buffer, Matrix *d_values);
-double nn_mean_squared_error_loss(const Vector *y_hat, const Vector *y);
-double nn_cross_entropy_loss(const Vector *y_hat, const Vector *y);
+double  nn_mean_squared_error_loss(const Vector *y_hat, const Vector *y);
+double  nn_cross_entropy_loss(const Vector *y_hat, const Vector *y);
 
 #endif /* __NEURAL_NETWORK_H__ */
