@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 /* BUILD UR NEURAL NETWORK HERE! */
 typedef struct {
@@ -72,7 +73,8 @@ int main(int argc, char **argv) {
 
     int prediction;
     int label;
-    int row = 0;
+    srand(time(0));
+    unsigned int row = rand() % 10000;
     for (int digit = 0; digit < 10; digit++) {
         do {
             row++;
@@ -92,7 +94,6 @@ int main(int argc, char **argv) {
     vector_print(d_val);
     d_val = nn_relu_backwards(a_buf, d_val);
     vector_print(d_val);
-
 
     free(mnist_images);
     free(nn);

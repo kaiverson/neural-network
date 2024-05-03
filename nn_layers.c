@@ -166,7 +166,7 @@ Vector *nn_relu_backwards(Vector *buffer, Vector *d_values) {
     return d_values;
 }
 
-/*
+
 Vector *nn_softmax_backwards(Matrix *buffer, Matrix *d_values) {
     if (buffer->rows != d_values->rows || buffer->cols != d_values->cols) {
         printf("MATRICES IN SOFTMAX BACKWARDS ARE OF DIFFERENT SIZES.\n");
@@ -198,7 +198,6 @@ Vector *nn_softmax_backwards(Matrix *buffer, Matrix *d_values) {
 
     return d_values;
 }
-*/
 /* END ACTIVATION FUNCTIONS */
 
 
