@@ -6,6 +6,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 
 
 /* RANDOM */
@@ -460,6 +461,9 @@ Vector *matrix_times_vector_plus_vector(const Matrix *matrix, const Vector *inpu
 
 /* DATA LOADING FUNCTIONS */
 Vector *mnist_load_labels(Vector *labels, char *file_name) {
+    clock_t t; 
+    t = clock();
+
     printf("LOADING MNIST LABELS FROM %s .....\n", file_name);
 
     FILE *file_pointer;
@@ -473,7 +477,7 @@ Vector *mnist_load_labels(Vector *labels, char *file_name) {
 
     int image = 0;
     int pixel = 0;
-    while (feof(file_pointer) != true) {
+    while (feof(file_pointer) != true & labels->rows > image) {
         fgets(label_buffer, 3500, file_pointer);
 
         token = strtok(label_buffer, ",");
@@ -482,13 +486,17 @@ Vector *mnist_load_labels(Vector *labels, char *file_name) {
         image++;
     }
 
-    printf("%d MNIST LABELS LOADED!\n", image);
+    t = clock() - t; 
+    double time_taken = ((double)t)/CLOCKS_PER_SEC;
+    printf("%d MNIST LABELS LOADED IN %.3f SECONDS!\n\n", image, time_taken);
 
     return labels;
 }
 
 
 Matrix *mnist_load_images(Matrix *images, char *file_name) {
+    clock_t t; 
+    t = clock(); 
 
     printf("LOADING MNIST IMAGES FROM %s .....\n", file_name);
 
@@ -503,7 +511,7 @@ Matrix *mnist_load_images(Matrix *images, char *file_name) {
 
     int image = 0;
     int pixel = 0;
-    while (feof(file_pointer) != true) {
+    while (feof(file_pointer) != true & images->rows > image) {
         fgets(image_buffer, 3500, file_pointer);
 
         token = strtok(image_buffer, ",");
@@ -519,7 +527,9 @@ Matrix *mnist_load_images(Matrix *images, char *file_name) {
         image++;
     }
 
-    printf("%d MNIST IMAGES LOADED!\n", image);
+    t = clock() - t; 
+    double time_taken = ((double)t)/CLOCKS_PER_SEC;
+    printf("%d MNIST IMAGES LOADED IN %.3f SECONDS!\n\n", image, time_taken);
 
     return images;
 }

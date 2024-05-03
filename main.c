@@ -44,19 +44,21 @@ Vector *nn_forward(NeuralNetwork *nn, Vector *x) {
 
 
 int main(int argc, char **argv) {
+    #define TRAIN_SIZE 60000
+
     srand(6);
 
-    Matrix *mnist_images = matrix_init_empty(60001, 784);
+    Matrix *mnist_images = matrix_init_empty(TRAIN_SIZE, 784);
     mnist_images = mnist_load_images(mnist_images, "mnist_train.csv");
 
     Vector *image_buffer = vector_init_empty(28 * 28);
-    Vector *mnist_labels = vector_init_empty(60001);
+    Vector *mnist_labels = vector_init_empty(TRAIN_SIZE);
     mnist_labels = mnist_load_labels(mnist_labels, "mnist_train.csv");
 
     NeuralNetwork *nn = nn_init();
 
     int accuray = 0;
-    for (int i = 0; i < 60001; i++) {
+    for (int i = 0; i < TRAIN_SIZE; i++) {
         // printf("NN prediction: %d\n", vector_argmax(nn_forward(nn, matrix_get_row(mnist_images, i, image_buffer))));
         // printf("  Image label: %d", (int) mnist_labels->values[i]);
         // mnist_image_print(mnist_images, i, image_buffer);
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
         }
 
     }
-    printf("%d / 60001 correct predictions\n%.2lf%%\n\n", accuray, 100 * (double) accuray / (double) 60001);
+    printf("%d / %d correct predictions\n%.2lf%%\n\n", accuray, TRAIN_SIZE, 100 * (double) accuray / (double) 60000);
 
     int prediction;
     int label;
